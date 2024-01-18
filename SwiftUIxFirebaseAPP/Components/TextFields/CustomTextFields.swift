@@ -23,9 +23,9 @@ struct PrimarySecureTextField: View {
                     .font(.system(size: 14))
                 ZStack(alignment:.leading) {
                         image
-                        .foregroundColor(Color("PrimaryColor")) // Example color for the star
+                        .foregroundColor(Color("PrimaryColor"))
                         .bold()
-                        .padding(.leading, 15) // Adjust spacing as needed
+                        .padding(.leading, 15)
                     
                     SecureField(hintText, text: $text)
                         .padding(.leading, 30)
@@ -52,14 +52,13 @@ struct PrimaryTextField: View {
                     image
                         .foregroundColor(Color("PrimaryColor"))
                         .bold()
-                        .padding(.leading, 15) // Adjust spacing as needed
+                        .padding(.leading, 15)
                     
                     
                     TextField(hintText, text: $text)
                     
                         .padding(.leading, 30)
                         .padding(10)
-//                        .border(Colors.PrimaryColor, width: 1.2)
                         .overlay(RoundedRectangle(cornerRadius: 15)
                         .stroke(Color("PrimaryColor"), lineWidth: 1.2)) // Border
                 }

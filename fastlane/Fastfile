@@ -1,0 +1,71 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:ios)
+
+GYM_SCHEME = "SwiftUIxFirebaseAPP"
+GYM_WORKSPACE = "SwiftUIxFirebaseAPP.xcworkspace"
+GYM_IPA_NAME = "SwiftUIxFirebaseAPP.ipa"
+GYM_OUTPUT_DIRECTORY = "fastlane/delivery/dev/"
+GYM_CONFIGURATION = "ad-hoc"
+
+
+before_all do
+  clear_derived_data
+ 
+  UI.message("Stated Fastlane")
+  notification(subtitle: "Stated Fastlane", message: "before All")
+ 
+end
+
+
+platform :ios do
+  desc "Description of what the lane does"
+
+  desc "Description of what the lane does"
+    lane :build do
+      # add actions here: https://docs.fastlane.tools/actions
+      archive_app()
+    end
+
+    desc "application Building"
+    private_lane :archive_app do |options|
+   
+      UI.message("**-- Starting application archiving --**")
+   
+      build_app(scheme: GYM_SCHEME, # GYM_SCHEME
+        workspace: GYM_WORKSPACE , # GYM_WORKSPACE
+        include_bitcode: false, # include_bitcode
+        output_name: GYM_IPA_NAME, # GYM_IPA_NAME
+        output_directory: GYM_OUTPUT_DIRECTORY, # GYM_OUTPUT_DIRECTORY
+        export_method: GYM_CONFIGURATION, # GYM_CONFIGURATION
+        # skip_profile_detection: true,  # Skip automatic profile detection
+        # skip_codesigning: true 
+      )
+   
+      UI.message("**-- Application archiving Completed--**")
+    end
+
+
+  after_all do |lane|
+    clear_derived_data
+  
+    UI.message("Finish Fastlane")
+    notification(subtitle: "Finish Fastlane", message: "after All")
+  
+  end
+
+end
+

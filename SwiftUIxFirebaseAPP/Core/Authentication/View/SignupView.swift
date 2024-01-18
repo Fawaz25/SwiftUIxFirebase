@@ -12,6 +12,10 @@ struct SignupView: View {
     @State private var emailText: String = ""
     @State private var nameText: String = ""
     @State private var passwordText: String = ""
+    @State private var confirmpasswordText: String = ""
+    @State private var showAlert = false
+    @State private var alertMessage = ""
+    
     @State private var isRegisterActive = false
 
     @EnvironmentObject var viewModel: AuthViewModel
@@ -54,7 +58,7 @@ struct SignupView: View {
                     
                     
                 }
-                VStack(alignment: .leading,spacing: 35){
+                VStack(alignment: .leading,spacing: 30){
                     Group {
                         Text("Create an")
                             .font(FontStyles.SubheadingFont) +
@@ -69,38 +73,57 @@ struct SignupView: View {
                             .bold()
                     }.padding(.leading)
                     
-                    VStack(alignment:.leading,spacing:30){
+                    VStack(alignment:.leading,spacing:25){
                         PrimaryTextField(labelText: "Email", hintText: "Ex: abc@example.com", text: $emailText, image:  Image(systemName: "at"))
                         PrimaryTextField(labelText: "Your Name", hintText: "Ex. Saul Ramirez", text: $nameText,image:  Image(systemName: "person"))
                         PrimarySecureTextField(labelText: "Your Password", hintText: "Password", text: $passwordText,image:  Image(systemName: "lock"))
+                        ZStack(alignment: .trailing){
+                            PrimarySecureTextField(labelText: "Confirm Password", hintText: "re-enter Password", text: $confirmpasswordText,image:  Image(systemName: "lock"))
+                            
+                            
+                            if !passwordText.isEmpty && !confirmpasswordText.isEmpty{
+                                if passwordText == confirmpasswordText{
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .imageScale(.large)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(Color(.systemGreen))
+                                        .padding([.trailing,.top])
+                                        .padding(.trailing, 10)
+                                }else{
+                                    Image(systemName: "xmark.circle.fill")
+                                        .imageScale(.large)
+                                        .fontWeight(.bold)
+                                        .foregroundColor(Color(.systemRed))
+                                        .padding([.trailing,.top])
+                                        .padding(.trailing, 10)
 
-
-                        Button{
-                            Task{
-                                try await viewModel.createUser(withEmail: emailText, password: passwordText, fullName: nameText)
+                                }
                             }
-                        } label:{
-                            HStack{
-                                Spacer()
-                                Text("Register")
-                                    .font(.system(size: 16))
-                                    .foregroundColor(.white)
-                                    .bold()
-                                Spacer()
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color("PrimaryColor"))
-                            .frame(maxWidth: .infinity)
-
-                            .cornerRadius(15)
                         }
-                            .padding([.leading, .trailing])
+                       
+                        SecondaryButton(text: "Register") {
+                                Task{
+                                        try await viewModel.createUser(withEmail: emailText, password: passwordText, fullName: nameText){
+                                            success, errorMessage in
+                                        if success {
+                                            isRegisterActive.toggle()
 
-
+                                        } else {
+                                            alertMessage = errorMessage
+                                            showAlert = true
+                                        }
+                                    }
+                                }
+                            }
+                            .alert(isPresented: $showAlert) {
+                                Alert(title: Text("Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                            }
+                            .disabled(!formIsValid)
+                            .opacity(formIsValid ? 1.0 : 0.5)
+                            .padding([.leading,.trailing])
+                        
                         }.padding([.top,.bottom])
                     }
-                
 
                 HStack{
                     Spacer()
@@ -110,15 +133,25 @@ struct SignupView: View {
                 Spacer()
 
             }
-            
             .padding([.leading,.trailing])
-            
         }
         .ignoresSafeArea(.keyboard, edges: .bottom)
 
         .navigationBarBackButtonHidden()
     }
 }
+
+extension SignupView: AuthenticationFormProtocol{
+    var formIsValid: Bool{
+        return !emailText.isEmpty
+        && emailText.contains("@")
+        && !passwordText.isEmpty
+        && passwordText.count > 5
+        && confirmpasswordText == passwordText
+        && !nameText.isEmpty
+    }
+}
+
 
 #Preview {
     SignupView()

@@ -11,15 +11,18 @@ struct ForgetPasswordView: View {
     enum PasswordResetState {
             case email
             case verification
-            case newPassword
+//            case newPassword
         }
     @State private var emailText: String = ""
     @State private var verificationText: String = ""
     @State private var passwordText: String = ""
     @State private var isSignupViewActive = false
     @State private var passwordResetState: PasswordResetState = .email
-
+    @State private var showAlert = false
+    @State private var alertMessage = ""
     @State private var isRegisterActive = false
+    @EnvironmentObject var viewModel: AuthViewModel
+
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
     var body: some View {
@@ -57,31 +60,28 @@ struct ForgetPasswordView: View {
                         switch passwordResetState  {
                         case .email:
                             PrimaryTextField(labelText: "Email", hintText: "Ex: abc@example.com", text: $emailText, image:  Image(systemName: "at"))
+                            
+                            SecondaryButton(text: "Submit") {
+                                Task{
+                                        viewModel.forgotPassword(email: emailText) { success, errorMessage in
+                                        if success {
+                                            passwordResetState = .verification
+                                        } else {
+                                            alertMessage = errorMessage
+                                            showAlert = true
+                                        }
+                                    }
+                                }
+                            }
+                            .alert(isPresented: $showAlert) {
+                                Alert(title: Text("Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                            }
+                            .disabled(!formIsValid)
+                            .opacity(formIsValid ? 1.0 : 0.5)
+                            .padding([.leading,.trailing])
 
                         case .verification:
-                            PrimaryTextField(labelText: "Verification", hintText: "Enter verification code", text: $verificationText, image: Image(systemName: "lock"))
-
-                        case .newPassword:
-                            PrimarySecureTextField(labelText: "New Password", hintText: "Enter new password", text: $passwordText, image: Image(systemName: "lock"))
-                        }
-
-                        switch passwordResetState {
-                        case .email:
-                            SecondaryButton(text: "Submit") {
-                                
-                                passwordResetState = .verification
-                            }                        .padding([.leading,.trailing])
-
-                        case .verification:
-                            SecondaryButton(text: "Submit") {
-                                
-                                passwordResetState = .newPassword
-                            }                        .padding([.leading,.trailing])
-
-                        case .newPassword:
-                                SecondaryButton(text: "Confirm") {
-                                print("New password submitted")
-                            }                        .padding([.leading,.trailing])
+                            PasswordResetSuccessView()
                         }
                     }
                     
@@ -102,6 +102,39 @@ struct ForgetPasswordView: View {
 }
 
 
+struct PasswordResetSuccessView: View {
+    var body: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "checkmark.circle.fill")
+                .font(.system(size: 48))
+                .foregroundColor(.green)
+            
+            Text("Password Reset Email Sent Successfully")
+                .font(.title)
+                .fontWeight(.bold)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.primary)
+            
+            Text("Please check your inbox to update your password.")
+                .font(.subheadline)
+                .multilineTextAlignment(.center)
+                .foregroundColor(.secondary)
+        }
+        .padding()
+        .background(RoundedRectangle(cornerRadius: 10)
+            .fill(Color.white)) // You can choose a color that fits your theme
+        
+        .padding()
+    }
+}
+
+
+
+extension ForgetPasswordView: AuthenticationFormProtocol{
+    var formIsValid: Bool{
+        return !emailText.isEmpty
+    }
+}
 
 
 #Preview {

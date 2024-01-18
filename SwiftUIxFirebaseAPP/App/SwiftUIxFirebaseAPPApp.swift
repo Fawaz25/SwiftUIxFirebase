@@ -7,6 +7,7 @@
 
 import SwiftUI
 import Firebase
+import GoogleSignIn
 
 @main
 struct SwiftUIxFirebaseAPPApp: App {
@@ -21,5 +22,11 @@ struct SwiftUIxFirebaseAPPApp: App {
             ContentView()
                 .environmentObject(viewModel)
         }
+    }
+    
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+      return GIDSignIn.sharedInstance.handle(url)
     }
 }

@@ -7,6 +7,8 @@
 
 import SwiftUI
 import Firebase
+import GoogleSignIn
+import FirebaseAuth
 
 struct LoginView: View {
     @State private var emailText: String = ""
@@ -15,6 +17,8 @@ struct LoginView: View {
     @State private var isSignupViewActive = false
     @State private var isRegisterActive = false
     @EnvironmentObject var viewModel: AuthViewModel
+    @State private var showAlert = false
+    @State private var alertMessage = ""
 
     @Environment(\.dismiss) var dismiss
 
@@ -25,7 +29,6 @@ struct LoginView: View {
                 VStack(alignment: .leading, spacing: 30){
                     
                     Button(action: {
-                        // Handle back button action here
                         dismiss()
                     }) {
                         Image(systemName: "arrow.left")
@@ -62,38 +65,27 @@ struct LoginView: View {
                                     .underline()
                             }
                         }
-//                        NavigationLink(destination: LoginView()) {
-//                           
-//                            SecondaryButton(text: "Login") {
-//                                Task{
-//                                    try await.signIn(signIn(withEmail: emailText, password: passwordText))
-//                                }
-//                              
-////                                login()
-//                                print("Navigate to LoginView")
-//                            }
-//                        }
-                        Button{
+                        
+                        SecondaryButton(text: "Login") {
                             Task{
-                                try await viewModel.signIn(withEmail: emailText, password: passwordText)
-                            }
-                        } label:{
-                            HStack{
-                                Spacer()
-                                Text("Login")
-                                    .font(.system(size: 16))
-                                    .foregroundColor(.white)
-                                    .bold()
-                                Spacer()
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color("PrimaryColor"))
-                            .frame(maxWidth: .infinity)
+                                try await viewModel.signIn(withEmail: emailText, password: passwordText){
+                                            success, errorMessage in
+                                        if success {
+                                            isRegisterActive.toggle()
 
-                            .cornerRadius(15)
-                        }
-                        .padding([.leading,.trailing])
+                                        } else {
+                                            alertMessage = errorMessage
+                                            showAlert = true
+                                        }
+                                    }
+                                }
+                            }
+                            .alert(isPresented: $showAlert) {
+                                Alert(title: Text("Error"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+                            }
+                            .disabled(!formIsValid)
+                            .opacity(formIsValid ? 1.0 : 0.5)
+                            .padding([.leading,.trailing])
                         
                         Divider()
                            .background(Color.black)
@@ -103,6 +95,7 @@ struct LoginView: View {
                         
                         NavigationLink(destination: SignupView(), isActive: $isSignupViewActive) {
                             PrimaryButton(text: "Continue with Google", image: Image(.google), buttonType: .email) {
+                                
                                 self.isSignupViewActive = true
                             }
                         }
@@ -125,7 +118,6 @@ struct LoginView: View {
             .padding([.leading,.trailing])
 
         }
-//        .ignoresSafeArea(.keyboard, edges: .bottom)
         .navigationBarBackButtonHidden()
         
     }
@@ -140,8 +132,14 @@ struct LoginView: View {
     }
 }
 
-
-
+extension LoginView: AuthenticationFormProtocol{
+    var formIsValid: Bool{
+        return !emailText.isEmpty
+        && emailText.contains("@")
+        && !passwordText.isEmpty
+        && passwordText.count > 5
+    }
+}
 
 #Preview {
     LoginView()

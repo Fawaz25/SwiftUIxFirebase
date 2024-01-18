@@ -14,7 +14,7 @@ struct DashboardView: View {
             List{
                 Section{
                     HStack{
-                        Text("user.initials")
+                        Text(user.initials)
                             .font(.title)
                             .fontWeight(.semibold)
                             .frame(width: 72, height: 72)
@@ -22,11 +22,11 @@ struct DashboardView: View {
                             .clipShape(Circle())
                         
                         VStack(alignment: .leading, spacing: 4){
-                            Text("user.fullName")
+                            Text(user.fullName)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .padding(.top,4)
-                            Text("user.email")
+                            Text(user.email)
                                 .font(.footnote)
                                 .foregroundColor(.gray)
                             
@@ -47,13 +47,16 @@ struct DashboardView: View {
                 }
                 Section("Account"){
                     Button{
-                        print("sign out..")
+                        viewModel.signOut()
                     } label: {
                         SettingsRowView(imageName: "arrow.left.circle.fill", title: "Sign Out", tintColor: .red)
                     }
                     
                     Button{
                         print("Delete account..")
+                        Task {
+                            await viewModel.deleteAccount()
+                           }
                     } label: {
                         SettingsRowView(imageName: "xmark.circle.fill", title: "Delete Account", tintColor: .red)
                     }
