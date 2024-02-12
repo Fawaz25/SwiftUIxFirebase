@@ -15,57 +15,85 @@
 
 default_platform(:ios)
 
-GYM_SCHEME = "SwiftUIxFirebaseAPP"
-GYM_WORKSPACE = "SwiftUIxFirebaseAPP.xcworkspace"
-GYM_IPA_NAME = "SwiftUIxFirebaseAPP.ipa"
-GYM_OUTPUT_DIRECTORY = "fastlane/delivery/dev/"
-GYM_CONFIGURATION = "ad-hoc"
+GYM_SCHEME = "Dev"
+GYM_WORKSPACE = "NRLP.xcworkspace"
+GYM_IPA_NAME = "NRLP.ipa"
+GYM_OUTPUT_DIRECTORY = "fastlane/delivery/dev"
+GYM_CONFIGURATION = "development"  
 
 
-before_all do
-  clear_derived_data
- 
-  UI.message("Stated Fastlane")
-  notification(subtitle: "Stated Fastlane", message: "before All")
- 
+before_all do 
+  setup_circle_ci
 end
 
+
+# before_all do
+#   clear_derived_data
+
+#   UI.message("Started Fastlane")
+#   notification(subtitle: "Started Fastlane", message: "before All")
+# end
 
 platform :ios do
   desc "Description of what the lane does"
 
-  desc "Description of what the lane does"
-    lane :build do
-      # add actions here: https://docs.fastlane.tools/actions
-      archive_app()
-    end
+  lane :build do
+    archive_app()
+    # upload_to_testapp()
 
-    desc "application Building"
-    private_lane :archive_app do |options|
-   
-      UI.message("**-- Starting application archiving --**")
-   
-      build_app(scheme: GYM_SCHEME, # GYM_SCHEME
-        workspace: GYM_WORKSPACE , # GYM_WORKSPACE
-        include_bitcode: false, # include_bitcode
-        output_name: GYM_IPA_NAME, # GYM_IPA_NAME
-        output_directory: GYM_OUTPUT_DIRECTORY, # GYM_OUTPUT_DIRECTORY
-        export_method: GYM_CONFIGURATION, # GYM_CONFIGURATION
-        # skip_profile_detection: true,  # Skip automatic profile detection
-        # skip_codesigning: true 
-      )
+  end
+
+# /Users/fawazahmed.tahir/Library/Developer/Toolchains/ixguard.xctoolchain
+  lane :build_ixguard do
+     ixguard_path = "/Library/iXGuard/bin" 
+     sh "#{ixguard_path} -workspace #{GYM_WORKSPACE} -scheme #{GYM_SCHEME} -configuration #{GYM_CONFIGURATION} -output_directory #{GYM_OUTPUT_DIRECTORY}"
+      archive_app(
+       output_name: GYM_IPA_NAME,
+     )
    
       UI.message("**-- Application archiving Completed--**")
-    end
 
+  end
+
+  private_lane :archive_app do |options|
+    UI.message("**-- Starting application archiving --**")
+
+    build_app(
+      scheme: GYM_SCHEME,
+      workspace: GYM_WORKSPACE,
+      include_bitcode: false,
+      output_name: GYM_IPA_NAME,
+      output_directory: GYM_OUTPUT_DIRECTORY,
+      export_method: GYM_CONFIGURATION,
+      export_options: {
+        signingStyle: "manual",
+        signing_identity: "Apple Distribution: 1 LINK (PRIVATE) LIMITED (J2MFXH26UA)",
+        provisioningProfiles: {
+          "com.onelink.sohnidharti.app.dev" => "SDRP Development"
+        }
+      }
+    )
+
+    UI.message("**-- Application archiving Completed--**")
+  end
+
+  private_lane :upload_to_testapp do |options|
+    UI.message("**-- Uploading to testapp.io --**")
+
+    upload_to_testappio(
+      api_token: "357d93c0-5dc2-4934-8206-3057a580750f",
+      ipa_file: File.join(GYM_OUTPUT_DIRECTORY, GYM_IPA_NAME),
+      app_id: "R127j9ZYKV"  
+    )
+
+
+    UI.message("**-- Uploaded to testapp.io --**")
+  end
 
   after_all do |lane|
     clear_derived_data
-  
+
     UI.message("Finish Fastlane")
     notification(subtitle: "Finish Fastlane", message: "after All")
-  
   end
-
 end
-

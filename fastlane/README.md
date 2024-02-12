@@ -23,7 +23,13 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Description of what the lane does
 
-Description of what the lane does
+### ios build_ixguard
+
+```sh
+[bundle exec] fastlane ios build_ixguard
+```
+
+
 
 ----
 

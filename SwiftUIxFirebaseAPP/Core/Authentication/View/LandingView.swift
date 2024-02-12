@@ -70,7 +70,6 @@ struct clickableText: View{
     let textButton: String
     let viewDestination: AnyView
     
-    
     var body: some View {
         HStack{
             

@@ -2,4 +2,6 @@
 #
 # Ensure this file is checked in to source control!
 
-gem 'fastlane-plugin-diawi', source: '0'
+gem 'fastlane-plugin-bitrise'
+gem 'fastlane-plugin-testappio'
+gem 'fastlane-plugin-ixguard'

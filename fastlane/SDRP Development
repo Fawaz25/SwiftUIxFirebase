@@ -1,0 +1,8 @@
+[13:14:05]: [33mfastlane detected a Gemfile in the current directory[0m
+[13:14:05]: [33mHowever, it seems like you didn't use `bundle exec`[0m
+[13:14:05]: [33mTo launch fastlane faster, please use[0m
+[13:14:05]: 
+[13:14:05]: [36m$ bundle exec fastlane gym --scheme Dev --workspace NRLP.xcworkspace --include_bitcode false --output_name NRLP.ipa --output_directory fastlane/delivery/dev --export_method development --export_options signingStyle=manual,signing_identity=Apple Distribution: 1 LINK (PRIVATE) LIMITED (J2MFXH26UA),provisioningProfiles={ com.onelink.sohnidharti.app.dev = }[0m
+[13:14:05]: 
+[13:14:05]: [33mGet started using a Gemfile for fastlane https://docs.fastlane.tools/getting-started/ios/setup/#use-a-gemfile[0m
+[13:14:07]: [31mError setting value 'NRLP.xcworkspace' for option 'workspace'[0m

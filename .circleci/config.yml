@@ -1,0 +1,27 @@
+
+
+version: 2.1  # Use version 2.1 of CircleCI configuration
+
+jobs:
+  build-test:  # Define a job named 'build'
+    macos:  # Specify Docker executor
+      xcode: 15.2 # Use CircleCI's Node.js 12 Docker image
+
+    environment:
+      FL_OUTPUT_DIR: fastlane/delivery/dev
+      FASTLANE_LANE: build
+    
+    steps:  # Define the steps to be executed in this job
+      - checkout  # Checkout the code from the repository
+      - run: bundle install  # Install project dependencies
+      - run:
+          name: Fastlane   # Run tests
+          command: bundle exec fastlane
+
+workflows:
+  build-test-dev: # Use version 2 of workflows
+
+  build_and_test:  # Define a workflow named 'build_and_test'
+    jobs:
+      - build-test  # Run the 'build' job
+
